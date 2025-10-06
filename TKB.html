@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thời khóa biểu 10A1</title>
+  <style>
+    :root{
+      --bg:#ffffff; --text:#0f172a; --muted:#475569; --brand:#1d4ed8; --brand-2:#2563eb;
+      --panel:#ffffff; --border:#e5e7eb; --table:#ffffff; --thead:#f1f5f9; --danger:#dc2626; --ok:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, sans-serif; margin:0; color:var(--text); background:var(--bg)}
+    .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:10}
+    .school{font-size:12px; line-height:1.1; font-weight:700; text-transform:uppercase; letter-spacing:.2px}
+    .right{display:flex; gap:10px; align-items:center}
+    .btn{border:1px solid var(--border); background:var(--panel); color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer}
+    .btn.primary{background:var(--brand); border-color:var(--brand); color:#fff}
+    .btn.danger{background:var(--danger); border-color:var(--danger); color:#fff}
+    .btn.ok{background:var(--ok); border-color:var(--ok); color:#fff}
+    .container{max-width:1100px; margin:0 auto; padding:18px}
+    h1{margin:.5rem 0 0}
+    .sub{color:var(--muted); margin-top:4px}
+    table{width:100%; border-collapse:collapse; margin-top:12px; background:var(--table)}
+    th, td{border:1px solid var(--border); padding:10px; text-align:center}
+    thead th{background:var(--thead)}
+    a{color:var(--brand-2); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .grid{display:grid; grid-template-columns:1fr; gap:16px}
+    .login-box{max-width:380px; margin:60px auto; border:1px solid var(--border); padding:18px; border-radius:12px; background:#fff}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    input[type="text"], input[type="password"], input[type="date"], input[type="url"]{width:100%; padding:10px; border:1px solid var(--border); border-radius:8px}
+    .muted{color:var(--muted); font-size:12px}
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="school">
+      SỞ GD&ĐT HÀ NỘI<br/>
+      TRƯỜNG THPT PHAN HUY CHÚ - ĐỐNG ĐA
+    </div>
+    <div class="right">
+      <button class="btn" id="btnLoginTop" onclick="openLogin()">Đăng nhập Admin</button>
+    </div>
+  </div>
+
+  <!-- PUBLIC VIEW -->
+  <div class="container" id="publicView">
+    <h1>Thời khóa biểu 10A1</h1>
+    <div class="sub">Áp dụng từ: <span id="applyDateText">__/__/____</span></div>
+
+    <div class="grid">
+      <section>
+        <h2>Buổi sáng</h2>
+        <table>
+          <thead>
+            <tr><th>Tiết</th><th>Môn học</th><th>Giáo viên</th><th>Link phòng học</th><th>Ghi chú</th></tr>
+          </thead>
+          <tbody id="morningBody"></tbody>
+        </table>
+      </section>
+      <section>
+        <h2>Buổi chiều</h2>
+        <table>
+          <thead>
+            <tr><th>Tiết</th><th>Môn học</th><th>Giáo viên</th><th>Link phòng học</th><th>Ghi chú</th></tr>
+          </thead>
+          <tbody id="afternoonBody"></tbody>
+        </table>
+      </section>
+    </div>
+    <p class="muted">* Phần này ai cũng xem được. Nhấn liên kết để vào phòng học.</p>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="login-box" style="display:none">
+    <h3>Đăng nhập Admin</h3>
+    <div class="row">
+      <input type="text" id="username" placeholder="Tên đăng nhập: a1k29PHC">
+      <input type="password" id="password" placeholder="Mật khẩu: a1k29phc">
+    </div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" onclick="closeLogin()">Hủy</button>
+      <button class="btn primary" onclick="login()">Đăng nhập</button>
+    </div>
+    <div id="loginMsg" class="muted" style="color:#b91c1c;margin-top:8px"></div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="adminView" class="container" style="display:none">
+    <div class="row" style="justify-content:space-between; align-items:center">
+      <div>
+        <h2>Khu vực Admin – Cập nhật thời khóa biểu</h2>
+        <div class="sub">Áp dụng từ: <input type="date" id="applyDate"></div>
+      </div>
+      <div class="row">
+        <button class="btn ok" id="btnPublish">Cập nhật lên trang công khai</button>
+        <button class="btn danger" onclick="logout()">Đăng xuất</button>
+      </div>
+    </div>
+
+    <h3>Buổi sáng</h3>
+    <table>
+      <thead>
+        <tr><th>Tiết</th><th>Môn học</th><th>Giáo viên</th><th>Link phòng học</th><th>Ghi chú</th></tr>
+      </thead>
+      <tbody id="morningAdminBody"></tbody>
+    </table>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="addRow('morning')">+ Thêm tiết sáng</button>
+      <button class="btn danger" onclick="removeRow('morning')">− Xóa tiết sáng</button>
+    </div>
+
+    <h3 style="margin-top:18px">Buổi chiều</h3>
+    <table>
+      <thead>
+        <tr><th>Tiết</th><th>Môn học</th><th>Giáo viên</th><th>Link phòng học</th><th>Ghi chú</th></tr>
+      </thead>
+      <tbody id="afternoonAdminBody"></tbody>
+    </table>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="addRow('afternoon')">+ Thêm tiết chiều</button>
+      <button class="btn danger" onclick="removeRow('afternoon')">− Xóa tiết chiều</button>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN = {user:'a1k29PHC', pass:'a1k29phc'};
+    const KEY_PUBLIC = 'tt_public_v2';
+    const KEY_DRAFT  = 'tt_draft_v2';
+
+    const $ = sel => document.querySelector(sel);
+    const toLink = v => {
+      const t = (v||'').trim();
+      if(!t) return '';
+      if(/^https?:\/\//i.test(t)) return t;
+      return 'https://' + t;
+    };
+
+    function renderPublic(){
+      const data = JSON.parse(localStorage.getItem(KEY_PUBLIC) || '{}');
+      const {applyDate, morning=[], afternoon=[]} = data;
+      $('#applyDateText').textContent = applyDate ? new Date(applyDate).toLocaleDateString('vi-VN') : '__/__/____';
+      const mBody = $('#morningBody');
+      const aBody = $('#afternoonBody');
+      mBody.innerHTML = '';
+      aBody.innerHTML = '';
+      const build = (tbody, rows) => {
+        if(!rows.length){
+          tbody.innerHTML = '<tr><td colspan="5" class="muted">Chưa có dữ liệu</td></tr>';
+          return;
+        }
+        rows.forEach((r,i)=>{
+          const linkHtml = r.link ? `<a href="${toLink(r.link)}" target="_blank" rel="noopener">Vào phòng</a>` : '';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i+1}</td><td>${r.subject||''}</td><td>${r.teacher||''}</td><td>${linkHtml}</td><td>${r.note||''}</td>`;
+          tbody.appendChild(tr);
+        });
+      };
+      build(mBody, morning);
+      build(aBody, afternoon);
+    }
+
+    function openLogin(){ $('#loginBox').style.display='block'; }
+    function closeLogin(){ $('#loginBox').style.display='none'; }
+    function login(){
+      const u = $('#username').value.trim();
+      const p = $('#password').value.trim();
+      if(u===ADMIN.user && p===ADMIN.pass){
+        localStorage.setItem('loggedIn','1');
+        $('#loginMsg').textContent='';
+        closeLogin();
+        showAdmin();
+      }else{
+        $('#loginMsg').textContent='Sai tên đăng nhập hoặc mật khẩu!';
+      }
+    }
+    function logout(){ localStorage.removeItem('loggedIn'); location.reload(); }
+
+    function loadDraft(){
+      const data = JSON.parse(localStorage.getItem(KEY_DRAFT) || '{}');
+      const {applyDate='', morning=[], afternoon=[]} = data;
+      $('#applyDate').value = applyDate || '';
+      const mBody = $('#morningAdminBody');
+      const aBody = $('#afternoonAdminBody');
+      mBody.innerHTML = '';
+      aBody.innerHTML = '';
+      const addRowFrom = (tbody, r, idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${idx}</td>
+          <td contenteditable="true">${r.subject||''}</td>
+          <td contenteditable="true">${r.teacher||''}</td>
+          <td contenteditable="true">${r.link||''}</td>
+          <td contenteditable="true">${r.note||''}</td>`;
+        tbody.appendChild(tr);
+      };
+      const ensure = arr => (Array.isArray(arr) && arr.length) ? arr : [];
+      ensure(morning).forEach((r,i)=> addRowFrom(mBody, r, i+1));
+      ensure(afternoon).forEach((r,i)=> addRowFrom(aBody, r, i+1));
+      if(!mBody.children.length){ for(let i=1;i<=5;i++){ addRow('morning'); } }
+      if(!aBody.children.length){ for(let i=1;i<=5;i++){ addRow('afternoon'); } }
+    }
+
+    function tableToArray(tbody){
+      const rows = Array.from(tbody.children);
+      return rows.map(tr=>{
+        const tds = tr.querySelectorAll('td');
+        return {
+          subject: tds[1].textContent.trim(),
+          teacher: tds[2].textContent.trim(),
+          link: tds[3].textContent.trim(),
+          note: tds[4].textContent.trim(),
+        };
+      });
+    }
+
+    function addRow(session){
+      const body = session==='morning' ? $('#morningAdminBody') : $('#afternoonAdminBody');
+      const idx = body.children.length + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${idx}</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>`;
+      body.appendChild(tr);
+      saveDraft();
+    }
+
+    function removeRow(session){
+      const body = session==='morning' ? $('#morningAdminBody') : $('#afternoonAdminBody');
+      if(body.children.length>0){ body.removeChild(body.lastElementChild); renumber(body); saveDraft(); }
+    }
+    function renumber(tbody){ Array.from(tbody.children).forEach((tr,i)=> tr.children[0].textContent = i+1); }
+
+    function saveDraft(){
+      const data = {
+        applyDate: $('#applyDate').value || '',
+        morning: tableToArray($('#morningAdminBody')),
+        afternoon: tableToArray($('#afternoonAdminBody')),
+      };
+      localStorage.setItem(KEY_DRAFT, JSON.stringify(data));
+    }
+
+    document.addEventListener('input', (e)=>{
+      const withinAdmin = $('#adminView').style.display !== 'none';
+      if(!withinAdmin) return;
+      if(e.target && e.target.isContentEditable){ saveDraft(); }
+      if(e.target && e.target.id==='applyDate'){ saveDraft(); }
+    });
+
+    $('#btnPublish')?.addEventListener('click', ()=>{
+      const data = {
+        applyDate: $('#applyDate').value || '',
+        morning: tableToArray($('#morningAdminBody')),
+        afternoon: tableToArray($('#afternoonAdminBody')),
+      };
+      localStorage.setItem(KEY_PUBLIC, JSON.stringify(data));
+      alert('Đã cập nhật lên trang công khai!');
+      renderPublic();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+
+    function showAdmin(){
+      $('#adminView').style.display='block';
+      loadDraft();
+    }
+
+    renderPublic();
+    if(localStorage.getItem('loggedIn')==='1'){ showAdmin(); }
+  </script>
+</body>
+</html>
